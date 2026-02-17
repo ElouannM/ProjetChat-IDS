@@ -1,0 +1,15 @@
+tom: slt
+tom: bonjour
+elou: slt
+elou: slt
+tom: slt
+elou: slt
+elou joined the chat
+tom joined the chat
+elou left the chat
+tom left the chat
+elou joined the chat
+elou: slt
+elou joined the chat
+elou joined the chat
+elou joined the chat
