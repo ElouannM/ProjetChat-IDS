@@ -124,14 +124,14 @@ public class ClientVue extends JFrame {
                 prefix = "Vous";
             }
             
-            chatArea.append(stringTime  + prefix + ": " + message + "\n");
+            chatArea.append(getCurrentTime() + prefix + ": " + message + "\n");
             chatArea.setCaretPosition(chatArea.getDocument().getLength());
         });
     }
 
     public void joinChat(String name){
         SwingUtilities.invokeLater(() -> {
-            String mess = stringTime +name + " has joined the chat\n";
+            String mess = getCurrentTime() +name + " has joined the chat\n";
             chatArea.append(mess);
             chatArea.setCaretPosition(chatArea.getDocument().getLength());
         });
@@ -139,7 +139,7 @@ public class ClientVue extends JFrame {
 
     public void leaveChat(String name){
         SwingUtilities.invokeLater(() -> {
-                String mess = stringTime + name + " has left the chat\n";
+                String mess = getCurrentTime() + name + " has left the chat\n";
                 chatArea.append(mess);
                 chatArea.setCaretPosition(chatArea.getDocument().getLength());
             });
@@ -153,5 +153,13 @@ public class ClientVue extends JFrame {
         JOptionPane.showMessageDialog(this, "Server is shutting down", "Warning", JOptionPane.WARNING_MESSAGE);
         System.exit(0);
     });
+    }
+
+
+
+    private String getCurrentTime(){
+        LocalTime time = LocalTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        return "[" + time.format(formatter) + "] ";
     }
 }

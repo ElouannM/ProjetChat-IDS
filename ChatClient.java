@@ -28,7 +28,9 @@ public class ChatClient {
                     }
 
                     String username = JOptionPane.showInputDialog(null,"Entrez votre nom d'utilisateur:","Connexion au chat", JOptionPane.PLAIN_MESSAGE);
-
+                    if(username == null || username.isEmpty()){
+                        System.exit(1);
+                    }
                     //System.out.println(username);
                     ChatClientController control = new ChatClientController(host, port, username, serverChoice);
 
