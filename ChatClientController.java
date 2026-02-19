@@ -61,7 +61,7 @@ public class ChatClientController  implements ChatClient_itf{
                     String mess = parts[2];
                     try {
                         server.sendPm(username, toUser, mess);
-                        vue.afficherMessage("Message privé envoyé à " + toUser, "Système");
+                        vue.afficherMessage(mess, "[PM to " + toUser + "]");
                     } catch (RemoteException e) {
                         vue.afficherMessage("Client not found", "Erreur");
                     }
