@@ -7,12 +7,13 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ChatServerImpl implements ChatServer_itf{
     // Clients
     private ConcurrentHashMap<String,ChatClient_itf> clients;
     // Historique
-    private ArrayList<String> history;
+    private CopyOnWriteArrayList<String> history;
     private String serverName;
     File file;
 
@@ -20,7 +21,7 @@ public class ChatServerImpl implements ChatServer_itf{
     public ChatServerImpl(String serverName){
         this.serverName = serverName;
         clients = new ConcurrentHashMap<>();
-        history = new ArrayList<>();// Cree l'historique
+        history = new CopyOnWriteArrayList<>();// Cree l'historique
 
         // Gestion de l'historique
         file = new File("history"+serverName.replace(" ", "_")+".txt");
@@ -74,10 +75,24 @@ public class ChatServerImpl implements ChatServer_itf{
     public void sendMessage(String message,String name) throws RemoteException {
         history.add(name + ": " + message);
         saveToHist(name + ": " + message);
-        for( ChatClient_itf client : clients.values()){
+        for( String clientName : clients.keySet()){
+            ChatClient_itf client = clients.get(clientName);
             try {
                 client.receiveMessage(name, message);
             } catch (RemoteException e) {
+                System.err.println("Client déconnecté :" + clientName);
+                clients.remove(clientName);
+
+                String leaveMessage = clientName + " has crashed";
+                history.add(leaveMessage);
+                saveToHist(leaveMessage);
+
+                for(ChatClient_itf c : clients.values()){
+                      try {
+                        c.receiveMessage("System", clientName + " has crashed");
+                    } catch (RemoteException ex) {
+                    }
+                }
             }
         }
     }
@@ -117,7 +132,18 @@ public class ChatServerImpl implements ChatServer_itf{
     public void sendPm(String from, String to, String message) throws RemoteException{
         ChatClient_itf client = clients.get(to);
         if(client != null){
-            client.receiveMessage("[PM from " + from + "]", message);
+            try {
+                client.receiveMessage("[PM from " + from + "]", message);
+            } catch (RemoteException e) {
+                System.err.println("Client déconnecté : " + to);
+                clients.remove(to);
+                
+                sendMessage("has crashed", to);
+
+                throw new RemoteException("User " + to + " is disconnected");
+            }
+        }else{
+            throw new RemoteException("User " + to + " not found");
         }
     }
 
